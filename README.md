@@ -444,3 +444,24 @@ ZEBRA_HEALTH__ENFORCE_ON_TEST_NETWORKS=true
 - **Integrators and agents:** [docs/contract.md](docs/contract.md), [`z3-contract.yaml`](z3-contract.yaml)
 - **Internals:** [docs/docker-architecture.md](docs/docker-architecture.md): Compose patterns, overlay merge rules, security hardening rationale
 - **Every env var:** [.env.example](.env.example)
+
+## Zec Developers Quest: Run Z3 (regtest)
+
+I ran Z3 locally on regtest from upstream commit `e84ce9f`, initialized the regtest environment with `./scripts/regtest-init.sh`, and then ran Zebra by itself with:
+
+```bash
+docker compose --env-file .env.regtest up -d zebra
+```
+
+### What I changed and why
+
+I changed `Z3_ZEBRA_HOST_HEALTH_PORT` in `.env.regtest` from `28080` to `28081`. This is a small, observable environment-level change that keeps Zebra's internal health service unchanged while demonstrating that the regtest stack picks up a documented host-port configuration change on re-run.
+
+After the change, I re-ran Zebra and verified the new health endpoint:
+
+```bash
+curl http://127.0.0.1:28081/ready
+# ok
+```
+
+`docker compose --env-file .env.regtest ps zebra` also showed the Zebra container running with host port `28081` mapped to the container health port.
